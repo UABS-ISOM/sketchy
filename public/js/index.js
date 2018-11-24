@@ -54,7 +54,7 @@ function drawOnCanvas(plots) {
 function render() {
   requestAnimationFrame(render);
   intersection = raycaster.intersectObjects(scene.children)[0] || null;
-  if (mouseDown) {
+  if (mouseDown && intersection) {
     localPlots.push({
       x: canvas.width * intersection.uv.x,
       y: canvas.height - canvas.height * intersection.uv.y
