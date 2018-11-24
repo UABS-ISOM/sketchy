@@ -2,16 +2,12 @@ const socket = io();
 
 const raycaster = new THREE.Raycaster();
 const sim = new altspace.utilities.Simulation();
-const camera = sim.camera;
 const scene = sim.scene;
-const renderer = sim.renderer;
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
-const geometry = new THREE.PlaneGeometry(1000, 1000);
-const texture = new THREE.Texture(canvas);
-const material = new THREE.MeshBasicMaterial({ map: texture });
-const cube = new THREE.Mesh(geometry, material);
+const boardTexture = new THREE.CanvasTexture(canvas);
+const board = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshBasicMaterial({ map: boardTexture }));
 
 let mouseDown = false;
 let localPlots = [];
@@ -21,22 +17,28 @@ function init() {
   canvas.width = canvas.height = 1024;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  scene.add(cube);
+  board.position.set(10, 10, 10);
+  scene.add(board);
 
   scene.addEventListener("cursormove", event => {
     raycaster.set(event.ray.origin, event.ray.direction);
   });
 
-  cube.addEventListener("cursordown", () => {
+  board.addEventListener("cursordown", () => {
     mouseDown = true;
   });
+  
   ["cursorup", "cursorleave"].forEach(eventType =>
-    cube.addEventListener(eventType, () => {
+    board.addEventListener(eventType, () => {
       mouseDown = false;
       localPlots.length != 0 && socket.emit("draw", localPlots);
       localPlots.length = 0;
     })
   );
+
+  socket.on("drawBroadcast", plots => {
+    foreignPlots.push(plots);
+  });  
 }
 
 function drawOnCanvas(plots) {
@@ -64,13 +66,8 @@ function render() {
     drawOnCanvas(foreignPlots.pop());
   }
 
-  texture.needsUpdate = true;
-  renderer.render(scene, camera);
+  boardTexture.needsUpdate = true;
 }
 
 init();
 requestAnimationFrame(render);
-
-socket.on("drawBroadcast", plots => {
-  foreignPlots.push(plots);
-});
