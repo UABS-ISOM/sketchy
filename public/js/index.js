@@ -7,7 +7,7 @@ const scene = sim.scene;
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const boardTexture = new THREE.CanvasTexture(canvas);
-const board = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshBasicMaterial({ map: boardTexture }));
+const board = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), new THREE.MeshBasicMaterial({ map: boardTexture }));
 
 let mouseDown = false;
 let localPlots = [];
