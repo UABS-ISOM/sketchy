@@ -4,11 +4,13 @@ const raycaster = new THREE.Raycaster();
 const sim = new altspace.utilities.Simulation();
 const scene = sim.scene;
 
+const boardSize = { x: 1024, y: 512 };
+
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const boardTexture = new THREE.CanvasTexture(canvas);
 const board = new THREE.Mesh(
-  new THREE.PlaneGeometry(1500, 1500),
+  new THREE.PlaneGeometry(boardSize.x, boardSize.y),
   new THREE.MeshBasicMaterial({ map: boardTexture })
 );
 
@@ -37,11 +39,10 @@ function findCanvasIntersection(event) {
 }
 
 function init() {
-  boardTexture.anisotropy = sim.renderer.getMaxAnisotropy();
-  canvas.width = canvas.height = 1024;
+  canvas.width = boardSize.x;
+  canvas.height = boardSize.y;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  board.position.set(10, 10, 10);
   scene.add(board);
 
   scene.addEventListener("cursormove", event => {
