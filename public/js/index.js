@@ -7,7 +7,10 @@ const scene = sim.scene;
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const boardTexture = new THREE.CanvasTexture(canvas);
-const board = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), new THREE.MeshBasicMaterial({ map: boardTexture }));
+const board = new THREE.Mesh(
+  new THREE.PlaneGeometry(1500, 1500),
+  new THREE.MeshBasicMaterial({ map: boardTexture })
+);
 
 let mouseDown = false;
 let localPlots = [];
@@ -22,12 +25,20 @@ function init() {
 
   scene.addEventListener("cursormove", event => {
     raycaster.set(event.ray.origin, event.ray.direction);
+    if (mouseDown) {
+      const intersection = raycaster.intersectObjects(scene.children)[0];
+      localPlots.push({
+        x: canvas.width * intersection.uv.x,
+        y: canvas.height - canvas.height * intersection.uv.y
+      });
+      drawOnCanvas(localPlots);
+    }
   });
 
   board.addEventListener("cursordown", () => {
     mouseDown = true;
   });
-  
+
   ["cursorup", "cursorleave"].forEach(eventType =>
     board.addEventListener(eventType, () => {
       mouseDown = false;
@@ -37,8 +48,8 @@ function init() {
   );
 
   socket.on("drawBroadcast", plots => {
-    foreignPlots.push(plots);
-  });  
+    drawOnCanvas(plots);
+  });
 }
 
 function drawOnCanvas(plots) {
@@ -49,25 +60,7 @@ function drawOnCanvas(plots) {
     ctx.lineTo(plots[i].x, plots[i].y);
   }
   ctx.stroke();
-}
-
-function render() {
-  requestAnimationFrame(render);
-  intersection = raycaster.intersectObjects(scene.children)[0] || null;
-  if (mouseDown && intersection) {
-    localPlots.push({
-      x: canvas.width * intersection.uv.x,
-      y: canvas.height - canvas.height * intersection.uv.y
-    });
-    drawOnCanvas(localPlots);
-  }
-
-  while (foreignPlots.length != 0) {
-    drawOnCanvas(foreignPlots.pop());
-  }
-
   boardTexture.needsUpdate = true;
 }
 
 init();
-requestAnimationFrame(render);
