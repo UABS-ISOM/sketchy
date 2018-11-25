@@ -22,8 +22,9 @@ app.get("/", function(req, res) {
 });
 
 io.on("connection", function(socket) {
-  socket.on("draw", plots => {
-    socket.broadcast.emit("drawBroadcast", plots);
+  socket.on("draw", (type, x, y) => {
+    console.log(type, x, y);
+    socket.broadcast.emit("drawBroadcast", socket.id, type, x, y);
   });
 });
 

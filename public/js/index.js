@@ -13,10 +13,31 @@ const board = new THREE.Mesh(
 );
 
 let mouseDown = false;
-let localPlots = [];
-let foreignPlots = [];
+let prevPoint = {};
+
+function drawOnCanvas(user, type, x, y) {
+  if (type === "lineTo") {
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(prevPoint[user].x, prevPoint[user].y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    boardTexture.needsUpdate = true;
+  }
+  prevPoint[user] = { x, y };
+}
+
+function findCanvasIntersection(event) {
+  raycaster.set(event.ray.origin, event.ray.direction);
+  const intersection = raycaster.intersectObjects(scene.children)[0];
+  const x = canvas.width * intersection.uv.x;
+  const y = canvas.height - canvas.height * intersection.uv.y;
+  return { x, y };
+}
 
 function init() {
+  boardTexture.anisotropy = sim.renderer.getMaxAnisotropy();
   canvas.width = canvas.height = 1024;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -24,43 +45,27 @@ function init() {
   scene.add(board);
 
   scene.addEventListener("cursormove", event => {
-    raycaster.set(event.ray.origin, event.ray.direction);
     if (mouseDown) {
-      const intersection = raycaster.intersectObjects(scene.children)[0];
-      localPlots.push({
-        x: canvas.width * intersection.uv.x,
-        y: canvas.height - canvas.height * intersection.uv.y
-      });
-      drawOnCanvas(localPlots);
+      const { x, y } = findCanvasIntersection(event);
+      drawOnCanvas("self", "lineTo", x, y);
+      socket.emit("draw", "lineTo", x, y);
     }
   });
 
-  board.addEventListener("cursordown", () => {
+  board.addEventListener("cursordown", event => {
+    const { x, y } = findCanvasIntersection(event);
+    drawOnCanvas("self", "moveTo", x, y);
+    socket.emit("draw", "moveTo", x, y);
     mouseDown = true;
   });
 
   ["cursorup", "cursorleave"].forEach(eventType =>
     board.addEventListener(eventType, () => {
       mouseDown = false;
-      localPlots.length != 0 && socket.emit("draw", localPlots);
-      localPlots.length = 0;
     })
   );
 
-  socket.on("drawBroadcast", plots => {
-    drawOnCanvas(plots);
-  });
-}
-
-function drawOnCanvas(plots) {
-  ctx.beginPath();
-  ctx.moveTo(plots[0].x, plots[0].y);
-
-  for (var i = 1; i < plots.length; i++) {
-    ctx.lineTo(plots[i].x, plots[i].y);
-  }
-  ctx.stroke();
-  boardTexture.needsUpdate = true;
+  socket.on("drawBroadcast", drawOnCanvas);
 }
 
 init();
