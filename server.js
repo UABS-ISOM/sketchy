@@ -8,8 +8,9 @@ const logger = require("morgan");
 
 app.use(express.static("public"));
 app.use("/scripts", [
-  express.static(path.join(__dirname, "/node_modules/altspace/dist/")),
-  express.static(path.join(__dirname, "/node_modules/three/build"))
+  express.static(path.join(__dirname, "/node_modules/three/build")),
+  express.static(path.join(__dirname, "/node_modules/aframe/build")),
+  express.static(path.join(__dirname, "/node_modules/altspace/dist/"))
 ]);
 
 app.use(logger("dev"));

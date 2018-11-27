@@ -1,17 +1,14 @@
 const socket = io();
 
 const raycaster = new THREE.Raycaster();
-const sim = new altspace.utilities.Simulation();
-const scene = sim.scene;
-
-const boardSize = { x: 1024, y: 512 };
+const scene = document.querySelector("a-scene").object3D;
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 const boardTexture = new THREE.CanvasTexture(canvas);
 const board = new THREE.Mesh(
-  new THREE.PlaneGeometry(boardSize.x, boardSize.y),
-  new THREE.MeshBasicMaterial({ map: boardTexture })
+  new THREE.PlaneGeometry(8, 4),
+  new THREE.MeshBasicMaterial({ map: boardTexture, side: THREE.DoubleSide})
 );
 
 let mouseDown = false;
@@ -39,10 +36,11 @@ function findCanvasIntersection(event) {
 }
 
 function init() {
-  canvas.width = boardSize.x;
-  canvas.height = boardSize.y;
+  canvas.width = 1024;
+  canvas.height = 512;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  board.position.set(0, 0, 0);
   scene.add(board);
 
   scene.addEventListener("cursormove", event => {

@@ -6,6 +6,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "aframe": "^0.7.0",
     "altspace": "^2.9.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
