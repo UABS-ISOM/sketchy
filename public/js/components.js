@@ -22,22 +22,14 @@ AFRAME.registerComponent("drawable-canvas", {
 
     this.el.sceneEl.object3D.addEventListener("cursormove", event => {
       if (this.mouseDown) {
-        const intersection = this.findCanvasIntersection(event);
-        if (intersection) {
-          const { x, y } = intersection;
-          this.drawOnCanvas("self", "lineTo", x, y, this.penWidth, this.penColor);
-          socket.emit("draw", "lineTo", x, y, this.penWidth, this.penColor);
-        }
+        const intersection = this.findPenPoint(event);
+        if (intersection) this.drawAndBroadcast("lineTo", intersection.x, intersection.y);
       }
     });
 
     this.el.object3D.addEventListener("cursordown", event => {
-      const intersection = this.findCanvasIntersection(event);
-      if (intersection) {
-        const { x, y } = intersection;
-        this.drawOnCanvas("self", "moveTo", x, y, this.penWidth, this.penColor);
-        socket.emit("draw", "moveTo", x, y, this.penWidth, this.penColor);
-      }
+      const intersection = this.findPenPoint(event);
+      if (intersection) this.drawAndBroadcast("moveTo", intersection.x, intersection.y);
       this.mouseDown = true;
     });
 
@@ -47,10 +39,10 @@ AFRAME.registerComponent("drawable-canvas", {
       });
     });
 
-    socket.on("drawBroadcast", this.drawOnCanvas.bind(this));
+    socket.on("drawBroadcast", this.draw.bind(this));
   },
 
-  drawOnCanvas: function(user, type, x, y, width, color) {
+  draw: function(user, type, x, y, width, color) {
     if (type === "lineTo") {
       this.ctx.lineCap = "round";
       this.ctx.lineWidth = width;
@@ -63,7 +55,12 @@ AFRAME.registerComponent("drawable-canvas", {
     this.prevPoints[user] = { x, y };
   },
 
-  findCanvasIntersection: function(event) {
+  drawAndBroadcast: function(type, x, y) {
+    this.draw("self", type, x, y, this.penWidth, this.penColor);
+    socket.emit("draw", type, x, y, this.penWidth, this.penColor);
+  },
+
+  findPenPoint: function(event) {
     this.raycaster.set(event.ray.origin, event.ray.direction);
     const intersection = this.raycaster.intersectObjects(
       this.el.sceneEl.object3D.children,
