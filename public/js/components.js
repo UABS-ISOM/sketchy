@@ -15,7 +15,7 @@ AFRAME.registerComponent("drawable-canvas", {
     this.canvas = document.getElementById(this.data);
     this.ctx = this.canvas.getContext("2d");
     this.prevPoints = {};
-    this.mouseDown = false;
+    this.penDown = false;
 
     // Adjustable variables
     this.penColor = "#000000";
@@ -29,7 +29,7 @@ AFRAME.registerComponent("drawable-canvas", {
 
     // Event handlers
     this.penMoveHandler = event => {
-      if (this.mouseDown) {
+      if (this.penDown) {
         const intersection = this.findPenPoint(event);
         if (intersection) this.drawAndBroadcast("lineTo", intersection.x, intersection.y);
       }
@@ -37,10 +37,10 @@ AFRAME.registerComponent("drawable-canvas", {
     this.penDownHandler = event => {
       const intersection = this.findPenPoint(event);
       if (intersection) this.drawAndBroadcast("moveTo", intersection.x, intersection.y);
-      this.mouseDown = true;
+      this.penDown = true;
     };
     this.penOffHandler = () => {
-      this.mouseDown = false;
+      this.penDown = false;
     };
 
     // Wire up event handlers
