@@ -4,6 +4,13 @@ AFRAME.registerComponent("drawable-canvas", {
   schema: { default: "" },
 
   init: function() {
+    // Try getting the current user from altspace
+    if (altspace.inClient) {
+      this.userPromise = altspace.getUser();
+    } else {
+      this.userPromise = Promise.resolve("not altspace user");
+    }
+
     this.raycaster = new THREE.Raycaster();
     this.canvas = document.getElementById(this.data);
     this.ctx = this.canvas.getContext("2d");
@@ -74,7 +81,9 @@ AFRAME.registerComponent("drawable-canvas", {
 
   drawAndBroadcast: function(type, x, y) {
     this.draw("self", type, x, y, this.penWidth, this.penColor);
-    socket.emit("draw", type, x, y, this.penWidth, this.penColor);
+    this.userPromise.then(user =>
+      socket.emit("draw", user.userId, type, x, y, this.penWidth, this.penColor)
+    );
   },
 
   findPenPoint: function(event) {

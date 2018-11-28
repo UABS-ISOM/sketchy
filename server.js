@@ -23,8 +23,8 @@ app.get("/", function(req, res) {
 });
 
 io.on("connection", function(socket) {
-  socket.on("draw", (type, x, y, width, pen) => {
-    console.log(type, x, y, width, pen);
+  socket.on("draw", (user, type, x, y, width, pen) => {
+    console.log(user, type, x, y, width, pen);
     socket.broadcast.emit("drawBroadcast", socket.id, type, x, y, width, pen);
   });
 });
