@@ -1,70 +1,73 @@
 const socket = io();
 
-const raycaster = new THREE.Raycaster();
-const scene = document.querySelector("a-scene").object3D;
+AFRAME.registerComponent("drawable-canvas", {
+  schema: { default: "" },
 
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
-const boardTexture = new THREE.CanvasTexture(canvas);
-const board = new THREE.Mesh(
-  new THREE.PlaneGeometry(8, 4),
-  new THREE.MeshBasicMaterial({ map: boardTexture, side: THREE.DoubleSide})
-);
+  init: function() {
+    this.raycaster = new THREE.Raycaster();
+    this.canvas = document.getElementById(this.data);
+    this.ctx = this.canvas.getContext("2d");
+    this.prevPoints = {};
+    this.mouseDown = false;
 
-let mouseDown = false;
-let prevPoint = {};
+    this.canvas.width = 1024;
+    this.canvas.height = 512;
+    this.ctx.fillStyle = "white";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-function drawOnCanvas(user, type, x, y) {
-  if (type === "lineTo") {
-    ctx.lineCap = "round";
-    ctx.lineWidth = 10;
-    ctx.beginPath();
-    ctx.moveTo(prevPoint[user].x, prevPoint[user].y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    boardTexture.needsUpdate = true;
-  }
-  prevPoint[user] = { x, y };
-}
+    this.el.sceneEl.object3D.addEventListener("cursormove", event => {
+      if (this.mouseDown) {
+        const intersection = this.findCanvasIntersection(event);
+        if (intersection) {
+          const { x, y } = intersection;
+          this.drawOnCanvas("self", "lineTo", x, y);
+          socket.emit("draw", "lineTo", x, y);
+        }
+      }
+    });
 
-function findCanvasIntersection(event) {
-  raycaster.set(event.ray.origin, event.ray.direction);
-  const intersection = raycaster.intersectObjects(scene.children)[0];
-  const x = canvas.width * intersection.uv.x;
-  const y = canvas.height - canvas.height * intersection.uv.y;
-  return { x, y };
-}
+    this.el.object3D.addEventListener("cursordown", event => {
+      const intersection = this.findCanvasIntersection(event);
+      if (intersection) {
+        const { x, y } = intersection;
+        this.drawOnCanvas("self", "moveTo", x, y);
+        socket.emit("draw", "moveTo", x, y);
+      }
+      this.mouseDown = true;
+    });
 
-function init() {
-  canvas.width = 1024;
-  canvas.height = 512;
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  board.position.set(0, 0, 0);
-  scene.add(board);
+    ["cursorup", "cursorleave"].forEach(eventType => {
+      this.el.object3D.addEventListener(eventType, () => {
+        this.mouseDown = false;
+      });
+    });
 
-  scene.addEventListener("cursormove", event => {
-    if (mouseDown) {
-      const { x, y } = findCanvasIntersection(event);
-      drawOnCanvas("self", "lineTo", x, y);
-      socket.emit("draw", "lineTo", x, y);
+    socket.on("drawBroadcast", this.drawOnCanvas);
+  },
+
+  drawOnCanvas: function(user, type, x, y) {
+    if (type === "lineTo") {
+      this.ctx.lineCap = "round";
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.prevPoints[user].x, this.prevPoints[user].y);
+      this.ctx.lineTo(x, y);
+      this.ctx.stroke();
     }
-  });
+    this.prevPoints[user] = { x, y };
+  },
 
-  board.addEventListener("cursordown", event => {
-    const { x, y } = findCanvasIntersection(event);
-    drawOnCanvas("self", "moveTo", x, y);
-    socket.emit("draw", "moveTo", x, y);
-    mouseDown = true;
-  });
-
-  ["cursorup", "cursorleave"].forEach(eventType =>
-    board.addEventListener(eventType, () => {
-      mouseDown = false;
-    })
-  );
-
-  socket.on("drawBroadcast", drawOnCanvas);
-}
-
-init();
+  findCanvasIntersection: function(event) {
+    this.raycaster.set(event.ray.origin, event.ray.direction);
+    const intersection = this.raycaster.intersectObjects(
+      this.el.sceneEl.object3D.children,
+      true
+    )[0];
+    return intersection
+      ? {
+          x: this.canvas.width * intersection.uv.x,
+          y: this.canvas.height - this.canvas.height * intersection.uv.y
+        }
+      : false;
+  }
+});

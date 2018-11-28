@@ -6,9 +6,22 @@
     <script src="/scripts/three.js"></script>
     <script src="/scripts/aframe.js"></script>
     <script src="/scripts/altspace.js"></script>
+    <script src="js/index.js"></script>
   </head>
   <body>
-    <a-scene altspace> </a-scene>
-    <script src="js/index.js"></script>
+    <a-scene altspace>
+      <a-assets> <canvas id="white-board-canvas"></canvas> </a-assets>
+
+      <a-plane
+        width="8"
+        height="4"
+        position="0 0 0"
+        material="src: #white-board-canvas; side: double"
+        drawable-canvas="white-board-canvas"
+        n-mesh-collider
+      ></a-plane>
+
+      <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
   </body>
 </html>
