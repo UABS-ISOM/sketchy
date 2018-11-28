@@ -42,7 +42,7 @@ AFRAME.registerComponent("drawable-canvas", {
       });
     });
 
-    socket.on("drawBroadcast", this.drawOnCanvas);
+    socket.on("drawBroadcast", this.drawOnCanvas.bind(this));
   },
 
   drawOnCanvas: function(user, type, x, y) {
