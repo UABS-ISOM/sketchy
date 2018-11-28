@@ -10,6 +10,11 @@ AFRAME.registerComponent("drawable-canvas", {
     this.prevPoints = {};
     this.mouseDown = false;
 
+    // Adjustable variables
+    this.penColor = "#000000";
+    this.penWidth = 5;
+
+    // Initialize canvas
     this.canvas.width = 1024;
     this.canvas.height = 512;
     this.ctx.fillStyle = "white";
@@ -20,8 +25,8 @@ AFRAME.registerComponent("drawable-canvas", {
         const intersection = this.findCanvasIntersection(event);
         if (intersection) {
           const { x, y } = intersection;
-          this.drawOnCanvas("self", "lineTo", x, y);
-          socket.emit("draw", "lineTo", x, y);
+          this.drawOnCanvas("self", "lineTo", x, y, this.penWidth, this.penColor);
+          socket.emit("draw", "lineTo", x, y, this.penWidth, this.penColor);
         }
       }
     });
@@ -30,8 +35,8 @@ AFRAME.registerComponent("drawable-canvas", {
       const intersection = this.findCanvasIntersection(event);
       if (intersection) {
         const { x, y } = intersection;
-        this.drawOnCanvas("self", "moveTo", x, y);
-        socket.emit("draw", "moveTo", x, y);
+        this.drawOnCanvas("self", "moveTo", x, y, this.penWidth, this.penColor);
+        socket.emit("draw", "moveTo", x, y, this.penWidth, this.penColor);
       }
       this.mouseDown = true;
     });
@@ -45,13 +50,14 @@ AFRAME.registerComponent("drawable-canvas", {
     socket.on("drawBroadcast", this.drawOnCanvas.bind(this));
   },
 
-  drawOnCanvas: function(user, type, x, y) {
+  drawOnCanvas: function(user, type, x, y, width, color) {
     if (type === "lineTo") {
       this.ctx.lineCap = "round";
-      this.ctx.lineWidth = 5;
+      this.ctx.lineWidth = width;
       this.ctx.beginPath();
       this.ctx.moveTo(this.prevPoints[user].x, this.prevPoints[user].y);
       this.ctx.lineTo(x, y);
+      this.ctx.strokeStyle = color;
       this.ctx.stroke();
     }
     this.prevPoints[user] = { x, y };
