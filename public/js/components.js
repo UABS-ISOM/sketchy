@@ -20,26 +20,43 @@ AFRAME.registerComponent("drawable-canvas", {
     this.ctx.fillStyle = "white";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.el.sceneEl.object3D.addEventListener("cursormove", event => {
+    // Event handlers
+    this.penMoveHandler = event => {
       if (this.mouseDown) {
         const intersection = this.findPenPoint(event);
         if (intersection) this.drawAndBroadcast("lineTo", intersection.x, intersection.y);
       }
-    });
-
-    this.el.object3D.addEventListener("cursordown", event => {
+    };
+    this.penDownHandler = event => {
       const intersection = this.findPenPoint(event);
       if (intersection) this.drawAndBroadcast("moveTo", intersection.x, intersection.y);
       this.mouseDown = true;
-    });
+    };
+    this.penOffHandler = () => {
+      this.mouseDown = false;
+    };
 
-    ["cursorup", "cursorleave"].forEach(eventType => {
-      this.el.object3D.addEventListener(eventType, () => {
-        this.mouseDown = false;
-      });
-    });
+    // Wire up event handlers
+    this.el.sceneEl.object3D.addEventListener("cursormove", this.penMoveHandler);
+    this.el.object3D.addEventListener("cursordown", this.penDownHandler);
+    ["cursorup", "cursorleave"].forEach(eventType =>
+      this.el.object3D.addEventListener(eventType, this.penOffHandler)
+    );
 
+    // Listen for remote draw stream
     socket.on("drawBroadcast", this.draw.bind(this));
+  },
+
+  remove: function() {
+    // Remove event listeners
+    this.el.sceneEl.object3D.removeEventListener("cursormove", this.penMoveHandler);
+    this.el.object3D.removeEventListener("cursordown", this.penDownHandler);
+    ["cursorup", "cursorleave"].forEach(eventType =>
+      this.el.object3D.removeEventListener(eventType, this.penOffHandler)
+    );
+
+    // Stop listening to remote draw stream
+    socket.off("drawBroadcast");
   },
 
   draw: function(user, type, x, y, width, color) {
