@@ -7,6 +7,7 @@
     <script src="/scripts/aframe.js"></script>
     <script src="/scripts/altspace.js"></script>
     <script src="/js/components.js"></script>
+    <script src="/js/a-rounded-component.js"></script>
   </head>
   <body>
     <a-scene altspace>
@@ -16,13 +17,176 @@
         id="white-board"
         width="8"
         height="4"
-        position="0 0 0"
+        position="0 2 0"
         material="src: #white-board-canvas; side: double"
         drawable-canvas="white-board-canvas"
         n-mesh-collider
       ></a-plane>
 
-      <a-sky color="#ECECEC"></a-sky>
+      <a-box
+        id="pen-tools"
+        position="6 2 0"
+        width="6"
+        height="7s"
+        scale="0.5 0.5 0.5"
+        material="opacity: 0.0; transparent: true"
+        altspace-cursor-collider="enabled: false"
+      >
+        <a-image
+          id="tick"
+          src="/assets/checkmark.png"
+          side="double"
+          width="0.5"
+          height="0.5"
+          altspace-cursor-collider="enabled: false"
+        ></a-image>
+
+        <a-rounded position="-3 -3 0" width="6" height="6" color="#ffffff"></a-rounded>
+
+        <a-circle
+          class="color"
+          position="-2 2 0.1"
+          color="#F6402C"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="-1 2 0.1"
+          color="#EB1460"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="0 2 0.1"
+          color="#9C1AB1"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="1 2 0.1"
+          color="#6633B9"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="2 2 0.1"
+          color="#3D4DB7"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+
+        <a-circle
+          class="color"
+          position="-2 1 0.1"
+          color="#42a233"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="-1 1 0.1"
+          color="#1d8573"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="0 1 0.1"
+          color="#25aecc"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="1 1 0.1"
+          color="#1c95f6"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="2 1 0.1"
+          color="#1a7ff5"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+
+        <a-circle
+          class="color"
+          position="-2 0 0.1"
+          color="#7bba27"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="-1 0 0.1"
+          color="#c3d700"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="0 0 0.1"
+          color="#fee800"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="1 0 0.1"
+          color="#fbb300"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="2 0 0.1"
+          color="#f88300"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+
+        <a-circle
+          class="color"
+          position="-2 -1 0.1"
+          color="#000000"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="-1 -1 0.1"
+          color="#4d6978"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="0 -1 0.1"
+          color="#8b8b8b"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="1 -1 0.1"
+          color="#644236"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+        <a-circle
+          class="color"
+          position="2 -1 0.1"
+          color="#f63a00"
+          radius="0.4"
+          n-mesh-collider
+        ></a-circle>
+      </a-box>
     </a-scene>
     <script src="/js/index.js"></script>
   </body>
