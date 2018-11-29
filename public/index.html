@@ -17,7 +17,7 @@
         id="white-board"
         width="8"
         height="4"
-        position="0 0 0"
+        position="0 2 0"
         material="src: #white-board-canvas; side: double"
         drawable-canvas="white-board-canvas"
         n-mesh-collider
@@ -25,13 +25,22 @@
 
       <a-box
         id="pen-tools"
-        position="6 0 0"
+        position="6 2 0"
         width="6"
         height="7s"
         scale="0.5 0.5 0.5"
         material="opacity: 0.0; transparent: true"
         altspace-cursor-collider="enabled: false"
       >
+        <a-image
+          id="tick"
+          src="/assets/checkmark.png"
+          side="double"
+          width="0.5"
+          height="0.5"
+          altspace-cursor-collider="enabled: false"
+        ></a-image>
+
         <a-rounded position="-3 -3 0" width="6" height="6" color="#ffffff"></a-rounded>
 
         <a-circle
