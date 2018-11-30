@@ -12,10 +12,12 @@ AFRAME.registerComponent("drawable-canvas", {
     }
 
     this.raycaster = new THREE.Raycaster();
-    this.canvas = document.getElementById(this.data);
+    this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
+    this.texture = new THREE.CanvasTexture(this.canvas);
     this.prevPoints = {};
     this.penDown = false;
+    this.el.object3D.children.find(o => o.type === "Mesh").material.map = this.texture;
 
     // Adjustable variables
     this.penColor = "#000000";
@@ -77,6 +79,7 @@ AFRAME.registerComponent("drawable-canvas", {
       this.ctx.stroke();
     }
     this.prevPoints[user] = { x, y };
+    this.texture.needsUpdate = true;
   },
 
   drawAndBroadcast: function(type, x, y) {
