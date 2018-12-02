@@ -19,16 +19,22 @@ for (colorPicker of colorPickers) {
 }
 
 eraserButton.object3D.addEventListener("cursordown", function() {
-  console.log("erase")
+  console.log("erase");
   whiteBoardComponents.penColor = "white";
 });
 
 penWidthIncreaseButton.object3D.addEventListener("cursordown", function() {
-  console.log("+")
+  console.log("+");
   if (whiteBoardComponents.penWidth < 30) whiteBoardComponents.penWidth += 1;
 });
 
-penWidthDecreaseButton.object3D.addEventListener("cursordown", function(){
-  console.log("-")
+penWidthDecreaseButton.object3D.addEventListener("cursordown", function() {
+  console.log("-");
   if (whiteBoardComponents.penWidth > 1) whiteBoardComponents.penWidth -= 1;
 });
+
+[eraserButton, penWidthDecreaseButton, penWidthIncreaseButton].forEach(button =>
+  button.object3D.children
+    .find(o => o.type === "Mesh")
+    .addBehavior(new altspace.utilities.behaviors.ButtonStateStyle({ overBrightness: 1.25 }))
+);
