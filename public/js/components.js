@@ -69,14 +69,18 @@ AFRAME.registerComponent("drawable-canvas", {
   },
 
   draw: function(user, type, x, y, width, color) {
+    this.ctx.beginPath();
     if (type === "lineTo") {
       this.ctx.lineCap = "round";
       this.ctx.lineWidth = width;
-      this.ctx.beginPath();
       this.ctx.moveTo(this.prevPoints[user].x, this.prevPoints[user].y);
       this.ctx.lineTo(x, y);
       this.ctx.strokeStyle = color;
       this.ctx.stroke();
+    } else if (type === "moveTo") {
+      this.ctx.fillStyle = color;
+      this.ctx.arc(x, y, Math.round(width / 2), 0, 2 * Math.PI);
+      this.ctx.fill();
     }
     this.prevPoints[user] = { x, y };
     this.texture.needsUpdate = true;
